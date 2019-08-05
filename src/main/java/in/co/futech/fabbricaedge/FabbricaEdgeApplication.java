@@ -1,6 +1,8 @@
 package in.co.futech.fabbricaedge;
 
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +22,7 @@ import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.integration.mqtt.outbound.MqttPahoMessageHandler;
+import org.springframework.integration.support.json.BoonJsonObjectMapper;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.scheduling.TaskScheduler;
@@ -36,6 +39,8 @@ import java.util.Random;
 @EnableScheduling
 @EnableIntegration
 public class FabbricaEdgeApplication implements ApplicationContextAware {
+
+	public static Logger logger = LoggerFactory.getLogger(FabbricaEdgeApplication.class);
 
 	private ApplicationContext applicationContext;
 
@@ -57,26 +62,15 @@ public class FabbricaEdgeApplication implements ApplicationContextAware {
 
 	@PostConstruct
 	public void initializeTasks() {
-		HashMap<Integer, List<EdgeConfiguration.Measurement>> hashMap = new HashMap<Integer, List<EdgeConfiguration.Measurement>>();
-		for(EdgeConfiguration.Measurement measurement: edgeConfiguration.getMeasurements()) {
-			if(!hashMap.containsKey(measurement.getFrequency())) {
-				List<EdgeConfiguration.Measurement> list = new ArrayList<EdgeConfiguration.Measurement>();
-				list.add(measurement);
-				hashMap.put(measurement.getFrequency(), list);
-			}
-			else {
-				hashMap.get(measurement.getFrequency()).add(measurement);
-			}
-		}
 		this.scheduledTasks = new ArrayList<>();
-		for (HashMap.Entry<Integer, List<EdgeConfiguration.Measurement>> measurements : hashMap.entrySet()) {
-			ScheduledTask scheduledTask = applicationContext.getBean(ScheduledTask.class , measurements.getValue());
+		for(Measurement measurement: edgeConfiguration.getMeasurements()) {
+			ScheduledTask scheduledTask = applicationContext.getBean(ScheduledTask.class , measurement);
 			taskScheduler.scheduleAtFixedRate(new Runnable() {
 				@Override
 				public void run() {
 					scheduledTask.runTask();
 				}
-			}, measurements.getKey());
+			}, measurement.getFrequency());
 			scheduledTasks.add(scheduledTask);
 		}
 	}

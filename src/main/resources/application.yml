@@ -3,7 +3,13 @@ username: user-002
 password: 1234
 clientid: 90dabd46-d377-4e07-a119-414a358ee03d
 measurements:
-    - name: oilTemperature
+    - name: stats
+      fields:
+        - name: oilTemperature
+          type: Integer
+        - name: earthinVoltage
+          type: Integer
+        - name: operationMode
+          type: Integer
       frequency: 1000
-    - name: earthingVoltage
-      frequency: 1000
+      type: RANDOM
