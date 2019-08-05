@@ -6,4 +6,4 @@ measurements:
     - name: oilTemperature
       frequency: 1000
     - name: earthingVoltage
-      freqency: 1000
+      frequency: 1000
