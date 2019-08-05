@@ -1,0 +1,9 @@
+brokerUrl: tcp://127.0.0.1:1883
+username: user-002
+password: 1234
+clientid: 90dabd46-d377-4e07-a119-414a358ee03d
+measurements:
+    - name: oilTemperature
+      frequency: 1000
+    - name: earthingVoltage
+      freqency: 1000
